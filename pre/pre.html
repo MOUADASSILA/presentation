@@ -1,0 +1,1130 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Introduction au Développement Web</title>
+    
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>⚙️</text></svg>">
+    
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;700;900&family=Lato:wght@400;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <style>
+        :root {
+            /* -- Color Palette -- */
+            --color-primary: #34d399;
+            --color-primary-dark: #10b981;
+            --color-primary-darkest: #059669;
+            --color-primary-shadow: rgba(52, 211, 153, 0.5);
+            --color-primary-shadow-heavy: rgba(52, 211, 153, 0.8);
+            
+            --color-secondary: #3b82f6;
+            
+            /* MODIFIÉ: Fond "Slate" (ardoisier) pro kter */
+            --color-bg-dark-1: #0f172a; 
+            --color-bg-dark-2: #1e293b;
+            --color-bg-dark-3: #0f172a; 
+            
+            --color-text-light: #f8fafc;
+            --color-text-mid: #94a3b8;
+            --color-text-dark: #cbd5e1;
+
+            --color-tile-bg-1: rgba(51, 65, 85, 0.9);
+            --color-tile-bg-2: rgba(30, 41, 59, 0.9);
+            --color-code-bg-1: #0f172a;
+            --color-code-bg-2: #1e293b;
+
+            /* -- Fonts -- */
+            --font-heading: 'Poppins', sans-serif;
+            --font-body: 'Lato', sans-serif;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        html {
+            scroll-behavior: smooth;
+        }
+
+        body {
+            background: linear-gradient(135deg, var(--color-bg-dark-1) 0%, var(--color-bg-dark-2) 50%, var(--color-bg-dark-3) 100%);
+            font-family: var(--font-body);
+            height: 100vh;
+            overflow: hidden; /* Keeps the presentation UI fixed */
+            position: relative;
+        }
+
+        /* Animated background particles */
+        .particles {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 0;
+            overflow: hidden;
+        }
+
+        .particle {
+            position: absolute;
+            width: 4px;
+            height: 4px;
+            background: var(--color-primary);
+            border-radius: 50%;
+            /* MODIFIÉ: Particules b opacité naqsa (0.2) */
+            animation: float 15s infinite;
+            opacity: 0.2;
+        }
+
+        @keyframes float {
+            /* MODIFIÉ: Opacité mbeddla hna ayda */
+            0%, 100% { transform: translateY(0) translateX(0); opacity: 0.2; }
+            25% { transform: translateY(-100px) translateX(50px); opacity: 0.5; }
+            50% { transform: translateY(-200px) translateX(-50px); opacity: 0.2; }
+            75% { transform: translateY(-100px) translateX(100px); opacity: 0.5; }
+        }
+
+        /* Presentation container */
+        .presentation {
+            position: relative;
+            width: 100%;
+            height: 100vh;
+            overflow: hidden;
+            z-index: 1;
+        }
+
+        /* Slide container */
+        .slide-container {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100vh; /* Use 100vh to ensure it fills the viewport */
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            padding: clamp(2rem, 6vw, 5rem);
+            opacity: 0;
+            transform: scale(0.9) translateX(100px);
+            transition: all 0.8s cubic-bezier(0.4, 0, 0.2, 1);
+            pointer-events: none;
+            overflow-y: auto; /* Allows individual slides to scroll */
+        }
+
+        .slide-container.active {
+            opacity: 1;
+            transform: scale(1) translateX(0);
+            pointer-events: auto;
+        }
+
+        .slide-container.prev {
+            transform: scale(0.9) translateX(-100px);
+        }
+
+        /* Animated gradient background for slides */
+        .slide-container::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: radial-gradient(circle at 30% 50%, rgba(52, 211, 153, 0.1) 0%, transparent 50%),
+                        radial-gradient(circle at 70% 50%, rgba(59, 130, 246, 0.1) 0%, transparent 50%);
+            z-index: -1;
+            animation: pulse 4s ease-in-out infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 1; transform: scale(1); }
+            50% { opacity: 0.8; transform: scale(1.05); }
+        }
+
+        /* Typography */
+        h1, h2, h3 {
+            font-family: var(--font-heading);
+            color: var(--color-primary);
+            margin: 0;
+            text-shadow: 0 0 20px var(--color-primary-shadow);
+        }
+
+        /* Fluid Typography using clamp() */
+        h1 {
+            font-size: clamp(2.5rem, 5vw + 1rem, 5rem);
+            font-weight: 900;
+            background: linear-gradient(135deg, var(--color-primary) 0%, var(--color-primary-dark) 50%, var(--color-primary-darkest) 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            animation: glow 2s ease-in-out infinite;
+        }
+
+        @keyframes glow {
+            0%, 100% { filter: drop-shadow(0 0 20px var(--color-primary-shadow)); }
+            50% { filter: drop-shadow(0 0 30px var(--color-primary-shadow-heavy)); }
+        }
+
+        h2 {
+            font-size: clamp(2rem, 4vw + 1rem, 3.5rem);
+            font-weight: 700;
+        }
+
+        h3 {
+            font-size: clamp(1.5rem, 2.5vw + 0.5rem, 2rem);
+            font-weight: 600;
+        }
+
+        p, li {
+            color: var(--color-text-light);
+            font-family: var(--font-body);
+            font-size: clamp(1rem, 1.5vw + 0.5rem, 1.4rem);
+            line-height: 1.8;
+        }
+
+        /* Slide Title */
+        .slide-title {
+            font-size: clamp(1.8rem, 4vw + 0.8rem, 3rem);
+            margin-bottom: 50px;
+            width: 100%;
+            text-align: left;
+            animation: slideInLeft 0.8s ease-out;
+        }
+
+        @keyframes slideInLeft {
+            from { opacity: 0; transform: translateX(-50px); }
+            to { opacity: 1; transform: translateX(0); }
+        }
+
+        /* Content Area */
+        .content-area {
+            width: 100%;
+            max-width: 1400px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            flex: 1;
+        }
+
+        /* Title Layout */
+        .title-layout {
+            text-align: center;
+            z-index: 2;
+        }
+
+        .title-layout h1 {
+            animation: fadeInUp 1s ease-out;
+            margin-bottom: 30px;
+        }
+
+        .subtitle {
+            font-size: clamp(1.2rem, 3vw + 0.5rem, 2rem);
+            color: var(--color-text-mid);
+            animation: fadeInUp 1s ease-out 0.3s both;
+        }
+
+        @keyframes fadeInUp {
+            from { opacity: 0; transform: translateY(30px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* Bullet List */
+        .bullet-list {
+            width: 100%;
+            max-width: 1000px;
+        }
+
+        .bullet-list ul {
+            list-style: none;
+            padding: 0;
+        }
+
+        .bullet-list li {
+            /* MODIFIÉ: Zedt f l'espace 3la lisser */
+            padding: clamp(1rem, 2vw, 1.5rem) 0 clamp(1rem, 2vw, 1.5rem) clamp(3.5rem, 6vw, 4.5rem);
+            position: relative;
+            margin-bottom: 20px;
+            font-size: clamp(1.1rem, 2vw + 0.5rem, 1.5rem);
+            opacity: 0;
+            animation: slideInLeft 0.6s ease-out forwards;
+            border-left: 3px solid transparent;
+            transition: all 0.3s ease;
+        }
+
+        .bullet-list li:hover {
+            border-left-color: var(--color-primary);
+            /* MODIFIÉ: Zedt f l'espace 3la lisser mni kat-hoveri */
+            padding-left: clamp(4rem, 7vw, 5rem);
+            transform: translateX(10px);
+        }
+
+        .bullet-list li:nth-child(1) { animation-delay: 0.1s; }
+        .bullet-list li:nth-child(2) { animation-delay: 0.2s; }
+        .bullet-list li:nth-child(3) { animation-delay: 0.3s; }
+        .bullet-list li:nth-child(4) { animation-delay: 0.4s; }
+        .bullet-list li:nth-child(5) { animation-delay: 0.5s; }
+        .bullet-list li:nth-child(6) { animation-delay: 0.6s; }
+
+        .bullet-list i {
+            position: absolute;
+            left: 0;
+            top: clamp(1rem, 2vw, 1.5rem); /* Match padding */
+            font-size: clamp(1.5rem, 2vw, 2rem);
+            color: var(--color-primary);
+            animation: iconPulse 2s ease-in-out infinite;
+        }
+
+        @keyframes iconPulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.2); }
+        }
+
+        .bullet-list strong {
+            color: var(--color-text-light);
+            font-weight: 700;
+        }
+
+        /* Two Column Layout */
+        .two-column {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 60px;
+            width: 100%;
+            align-items: start;
+        }
+
+        .two-column > div {
+            opacity: 0;
+            animation: fadeInUp 0.8s ease-out forwards;
+        }
+
+        .two-column > div:nth-child(1) { animation-delay: 0.2s; }
+        .two-column > div:nth-child(2) { animation-delay: 0.4s; }
+
+        .two-column.tiled > div {
+            background: linear-gradient(135deg, var(--color-tile-bg-1) 0%, var(--color-tile-bg-2) 100%);
+            border-radius: 20px;
+            padding: 40px;
+            border: 2px solid rgba(52, 211, 153, 0.3);
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.3);
+            transition: all 0.3s ease;
+        }
+
+        .two-column.tiled > div:hover {
+            border-color: var(--color-primary);
+            transform: translateY(-5px);
+            box-shadow: 0 15px 50px var(--color-primary-shadow);
+        }
+
+        .two-column ul {
+            list-style: none;
+            padding: 0;
+        }
+
+        .two-column li {
+            margin-bottom: 15px;
+            font-size: clamp(0.9rem, 1.5vw + 0.3rem, 1.3rem);
+        }
+
+        .two-column .content-icon {
+            font-size: 3rem;
+            color: var(--color-primary);
+            margin-bottom: 15px;
+            display: inline-block;
+        }
+
+        /* Code Blocks */
+        pre {
+            background: linear-gradient(135deg, var(--color-code-bg-1) 0%, var(--color-code-bg-2) 100%);
+            padding: 30px;
+            border-radius: 15px;
+            border: 2px solid rgba(52, 211, 153, 0.3);
+            font-family: 'Courier New', monospace;
+            font-size: clamp(0.8rem, 1vw + 0.5rem, 1rem);
+            color: var(--color-text-light);
+            overflow-x: auto;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+            animation: codeGlow 3s ease-in-out;
+            transition: all 0.3s ease;
+        }
+        
+        pre:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.7);
+        }
+
+        @keyframes codeGlow {
+            0%, 100% { border-color: rgba(52, 211, 153, 0.3); }
+            50% { border-color: rgba(52, 211, 153, 0.6); }
+        }
+
+        code {
+            color: var(--color-primary);
+        }
+
+        /* Image Wrapper */
+        .image-wrapper {
+            border-radius: 20px;
+            overflow: hidden;
+            background: rgba(51, 65, 85, 0.5);
+            box-shadow: 0 15px 40px rgba(0, 0, 0, 0.4);
+            animation: floatImage 3s ease-in-out infinite;
+        }
+
+        @keyframes floatImage {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-10px); }
+        }
+
+        .image-wrapper img {
+            width: 100%;
+            height: 100%;
+            object-fit: contain;
+            display: block;
+        }
+
+        /* Tiled Content */
+        .tiled-content {
+            display: flex;
+            gap: 40px;
+            width: 100%;
+            justify-content: center;
+        }
+
+        .tile {
+            flex: 1;
+            background: linear-gradient(135deg, var(--color-tile-bg-1) 0%, var(--color-tile-bg-2) 100%);
+            border-radius: 20px;
+            padding: 40px;
+            text-align: center;
+            border: 2px solid rgba(52, 211, 153, 0.3);
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.3);
+            opacity: 0;
+            animation: fadeInUp 0.8s ease-out forwards;
+            transition: all 0.3s ease;
+        }
+
+        .tile:nth-child(1) { animation-delay: 0.1s; }
+        .tile:nth-child(2) { animation-delay: 0.3s; }
+        .tile:nth-child(3) { animation-delay: 0.5s; }
+
+        .tile:hover {
+            transform: translateY(-10px) scale(1.05);
+            border-color: var(--color-primary);
+            box-shadow: 0 20px 60px var(--color-primary-shadow);
+        }
+
+        .tile .icon {
+            font-size: 4rem;
+            color: var(--color-primary);
+            margin-bottom: 20px;
+            animation: rotateIcon 3s ease-in-out infinite;
+        }
+
+        @keyframes rotateIcon {
+            0%, 100% { transform: rotate(0deg); }
+            25% { transform: rotate(-5deg); }
+            75% { transform: rotate(5deg); }
+        }
+
+        .tile h3 {
+            font-size: clamp(1.5rem, 2.5vw + 0.5rem, 2rem);
+            margin-bottom: 15px;
+        }
+
+        .tile p {
+            font-size: clamp(0.9rem, 1.5vw + 0.3rem, 1.2rem);
+            color: var(--color-text-dark);
+        }
+
+        /* Section Title Layout */
+        .section-title-layout {
+            text-align: center;
+            width: 100%;
+        }
+
+        .section-title-layout hr {
+            width: 150px;
+            height: 4px;
+            background: linear-gradient(90deg, transparent, var(--color-primary), transparent);
+            border: none;
+            margin: 30px auto;
+            animation: expandLine 1s ease-out;
+        }
+
+        @keyframes expandLine {
+            from { width: 0; }
+            to { width: 150px; }
+        }
+
+        .section-title-layout h2 {
+            animation: fadeInScale 1s ease-out;
+        }
+
+        @keyframes fadeInScale {
+            from { opacity: 0; transform: scale(0.8); }
+            to { opacity: 1; transform: scale(1); }
+        }
+
+        /* Q&A Layout */
+        .qa-layout {
+            text-align: center;
+        }
+
+        .qa-layout h2 {
+            font-size: clamp(3rem, 6vw + 1rem, 5rem);
+            animation: bounceIn 1s ease-out;
+            margin-bottom: 30px;
+        }
+
+        @keyframes bounceIn {
+            0% { opacity: 0; transform: scale(0.3); }
+            50% { transform: scale(1.1); }
+            100% { opacity: 1; transform: scale(1); }
+        }
+
+        /* Full Background Image */
+        .full-bg-image {
+            background-size: cover;
+            background-position: center;
+            background-blend-mode: overlay;
+        }
+
+        .full-bg-image::before {
+            background: linear-gradient(135deg, rgba(29, 78, 216, 0.7) 0%, rgba(30, 41, 59, 0.9) 100%);
+        }
+
+        /* Navigation Controls */
+        .nav-controls {
+            position: fixed;
+            bottom: 30px;
+            left: 50%;
+            transform: translateX(-50%);
+            z-index: 1000;
+            display: flex;
+            gap: 15px;
+            align-items: center;
+        }
+
+        .nav-btn {
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            background: rgba(52, 211, 153, 0.2);
+            border: 2px solid var(--color-primary);
+            color: var(--color-primary);
+            font-size: 1.5rem;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.3s ease;
+            backdrop-filter: blur(10px);
+        }
+
+        .nav-btn:hover {
+            background: rgba(52, 211, 153, 0.4);
+            transform: scale(1.1);
+            box-shadow: 0 0 20px var(--color-primary-shadow);
+        }
+
+        /* Accessibility for keyboard navigation */
+        .nav-btn:focus-visible {
+            outline: 3px solid var(--color-primary);
+            outline-offset: 2px;
+            background: rgba(52, 211, 153, 0.4);
+        }
+
+        .nav-btn:active {
+            transform: scale(0.95);
+        }
+
+        /* Progress Bar */
+        .progress-bar {
+            position: fixed;
+            top: 0;
+            left: 0;
+            height: 4px;
+            background: linear-gradient(90deg, var(--color-primary), var(--color-primary-dark));
+            z-index: 1000;
+            transition: width 0.3s ease;
+            box-shadow: 0 0 10px var(--color-primary-shadow);
+        }
+
+        /* Slide Counter */
+        .slide-counter {
+            position: fixed;
+            top: 30px;
+            right: 30px;
+            color: var(--color-text-mid);
+            font-size: 1.2rem;
+            z-index: 1000;
+            font-family: var(--font-heading);
+            background: rgba(0, 0, 0, 0.3);
+            padding: 10px 20px;
+            border-radius: 20px;
+            backdrop-filter: blur(10px);
+        }
+
+        /* Keyboard hint */
+        .keyboard-hint {
+            position: fixed;
+            bottom: 100px;
+            left: 50%;
+            transform: translateX(-50%);
+            color: var(--color-text-mid);
+            font-size: 0.9rem;
+            z-index: 1000;
+            text-align: center;
+            opacity: 0.7;
+        }
+
+        /* -- Responsive -- */
+        @media (max-width: 1200px) {
+            .two-column { 
+                grid-template-columns: 1fr; 
+                gap: 40px; 
+            }
+        }
+
+        @media (max-width: 768px) {
+            .tiled-content {
+                flex-direction: column; /* Stack tiles vertically */
+                gap: 25px;
+            }
+
+            pre {
+                padding: 1.5rem;
+            }
+
+            .nav-controls {
+                bottom: 20px;
+            }
+
+            .nav-btn {
+                width: 50px;
+                height: 50px;
+                font-size: 1.2rem;
+            }
+
+            .slide-counter {
+                top: 15px;
+                right: 15px;
+                font-size: 1rem;
+                padding: 8px 16px;
+            }
+
+            .keyboard-hint {
+                font-size: 0.8rem;
+                bottom: 80px;
+            }
+        }
+
+    </style>
+</head>
+<body>
+    <div class="particles" id="particles"></div>
+
+    <div class="progress-bar" id="progressBar"></div>
+
+    <div class="slide-counter" id="slideCounter" aria-live="polite" aria-atomic="true">1 / 21</div>
+
+    <div class="presentation">
+        <div class="slide-container full-bg-image active" id="slide1" role="region" aria-label="Introduction au Développement Web" style="background-image: linear-gradient(rgba(29, 78, 216, 0.5), rgba(30, 41, 59, 0.8)), url('image/bg.jpg');">            <div class="title-layout">
+                <h1>Introduction au Développement Web</h1>
+                <p class="subtitle">De l'Idée à l'Hébergement</p>
+            </div>
+        </div>
+
+        <div class="slide-container" id="slide2" role="region">
+            <h2 class="slide-title">Qui suis-je ?</h2>
+            <div class="content-area">
+                <div class="bullet-list">
+                    <ul>
+                        <li><i class="fa-solid fa-user"></i><strong>MOUAD ASSILA</strong></li>
+                        <li><i class="fa-solid fa-briefcase"></i><strong>INGÉNIEUR INFORMATICIEN</strong> (COMPUTER ENGINEER)</li>
+                        <li><i class="fa-solid fa-heart"></i>Ravi de partager ce domaine avec vous !</li>
+                        <li><i class="fa-solid fa-list-check"></i><strong>Aujourd'hui :</strong> Nous verrons comment un site est construit de A à Z.</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <div class="slide-container" id="slide3" role="region">
+            <h2 class="slide-title">Qu'est-ce que le "Développement Web" ? <span style="font-size: 1.5rem; color: var(--color-text-mid);"></span></h2>
+            <div class="two-column">
+            <div class="content-area">
+                <div class="bullet-list">
+                    <ul>
+                        <li><i class="fa-solid fa-house"></i><strong>Exemple: La construction d'une maison.</strong> Il y a l'Architecte (le Designer) et le Constructeur (le Développeur).</li>
+                        <li><i class="fa-solid fa-drafting-compass"></i><strong>L'Architecte (Le Designer):</strong> C'est le UI/UX Designer. Il dessine les plans et pense à l'UX/UI.</li>
+                        <li><i class="fa-solid fa-hammer"></i><strong>Le Constructeur (Le Développeur):</strong> Il prend les plans et construit la maison avec des outils (langages de programmation).</li>
+                    </ul>
+                </div>
+            </div>
+            <div>
+                        
+
+                <img src="image/exp.png" alt="Client-Server Model " style="width: 100%; height: 100%; object-fit: contain;">
+               
+                                   </div>
+        </div>
+        </div>
+
+        <div class="slide-container" id="slide4" role="region">
+            <h2 class="slide-title">Pourquoi le Développement Web est-il Important ?</h2>
+            <div class="two-column">
+            <div class="content-area">
+                <div class="bullet-list">
+                    <ul>
+                        <li><i class="fa-solid fa-comments"></i><strong>Communication :</strong> Le web permet aux entreprises et aux gens de communiquer (Blogs, Médias Sociaux).</li>
+                        <li><i class="fa-solid fa-store"></i><strong>E-commerce :</strong> La vente et l'achat en ligne. Le web est le plus grand marché du monde.</li>
+                        <li><i class="fa-solid fa-book-open"></i><strong>Éducation :</strong> Apprendre n'importe quoi en ligne (YouTube, Coursera, Cours).</li>
+                        <li><i class="fa-solid fa-briefcase"></i><strong>Gestion (Business) :</strong> Les entreprises utilisent des outils sur le web pour organiser leur travail.</li>
+                    </ul>
+                </div>
+            </div>
+
+            <div >
+                        
+
+                <img src="image/why.jpg" alt="Pourquoi le Développement Web " style="width: 100%; height: 100%; object-fit: contain;">
+               
+                                   </div>
+            </div>
+        </div>
+
+        <div class="slide-container" id="slide5" role="region">
+            <h2 class="slide-title">Comment fonctionne un "Site Web" ?</h2>
+            <div class="content-area">
+                <div class="two-column">
+                    <div>
+                        <ul>
+                            <li>C'est un ensemble de fichiers (code, images) stockés sur un **"Serveur"**.</li>
+                            <li><strong>Serveur :</strong> Un ordinateur puissant qui fonctionne 24/7 et qui est connecté à Internet.</li>
+                            <li><strong>Client (Votre navigateur) :</strong> Envoie une requête (demande) au Serveur.</li>
+                            <li><strong>Serveur :</strong> Répond et envoie les fichiers au client.</li>
+                            <li><strong>Client :</strong> Assemble les fichiers et vous affiche la page.</li>
+                        </ul>
+                    </div>
+                    <div>
+                        
+
+ <img src="image/link.png" alt="Client-Server Model " style="width: 80%; height: 80%; object-fit: contain;">
+
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="slide-container" id="slide6" role="region">
+            <div class="section-title-layout">
+                <hr>
+                <h2>Les 5 Étapes de la Création d'un Site</h2>
+            </div>
+            <div style="margin-left: 10% !important;">
+                        
+
+                <img src="image/steps.png" alt="Client-Server Model " style="width: 90%; height: 90%">
+               
+                                   </div>
+        </div>
+
+        <div class="slide-container" id="slide7" role="region">
+            <h2 class="slide-title">Étape 1: Planification (Planning)</h2>
+            <div class="content-area">
+                <div class="bullet-list">
+                    <ul>
+                        <li><i class="fa-solid fa-bullseye" ></i><strong>POURQUOI ? (L'Objectif):</strong> Qu'est-ce que ce site va faire ? (Vente ? Éducation ?...).</li>
+                        <li><i class="fa-solid fa-users"></i><strong>POUR QUI ? (L'Audience):</strong> Qui sont les gens qui vont l'utiliser ?</li>
+                        <li><i class="fa-solid fa-list-ul"></i><strong>QUOI ? (Les Fonctionnalités):</strong> Quelles sont les choses qu'il doit faire ? (Connexion ? Formulaire ? Galerie ?).</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <div class="slide-container" id="slide8" role="region">
+            <h2 class="slide-title">Étape 2: Design (UI & UX)</h2>
+            <div class="content-area">
+                <div class="two-column tiled">
+                    <div>
+                        <i class="fa-solid fa-palette content-icon"></i>
+                        <h3>UI (User Interface / Interface Utilisateur)</h3>
+                        <p>Comment il apparaît (L'aspect visuel). Les couleurs, la typographie, les images. Objectif : Qu'il soit <strong>Beau</strong>.</p>
+                    </div>
+                    <div>
+                        <i class="fa-solid fa-hand-pointer content-icon"></i>
+                        <h3>UX (User Experience / Expérience Utilisateur)</h3>
+                        <p>Comment il fonctionne (L'expérience). Est-il facile à utiliser ? Objectif : Qu'il soit <strong>Facile</strong>.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="slide-container" id="slide10" role="region">
+            <div class="section-title-layout">
+                <hr>
+                <h2>Étape 3 : Développement (Le Code)</h2>
+            </div>
+        </div>
+
+        <div class="slide-container" id="slide11" role="region">
+            <h2 class="slide-title">Frontend (L'Interface / La Façade)</h2>
+            <div class="content-area">
+                <div class="bullet-list">
+                    <ul>
+                        <li><i class="fa-solid fa-eye"></i>Tout ce que l'utilisateur voit et avec quoi il interagit dans le navigateur.</li>
+                        <li><i class="fa-solid fa-paint-roller"></i><strong>Exemple:</strong> Le salon de la maison. Il contient le décor, les canapés, la télévision.</li>
+                        <li><i class="fa-solid fa-code"></i><strong>Langages Fondamentaux:</strong> HTML, CSS, JavaScript.</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <div class="slide-container" id="slide12" role="region">
+            <h2 class="slide-title">Backend (Les Coulisses / L'Arrière-plan)</h2>
+            <div class="content-area">
+                <div class="bullet-list">
+                    <ul>
+                        <li><i class="fa-solid fa-server"></i>Le moteur du site. C'est ce qui ne se voit pas, et qui fonctionne sur le Serveur.</li>
+                        <li><i class="fa-solid fa-kitchen-set"></i><strong>Exemple:</strong> La cuisine d'un restaurant. C'est elle qui prépare les plats et stocke les ingrédients.</li>
+                        <li><i class="fa-solid fa-database"></i><strong>Fonction:</strong> Il stocke les informations (utilisateurs) dans une "Database" (base de données), et il fait les calculs compliqués.</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <div class="slide-container" id="slide13" role="region">
+            <h2 class="slide-title">Étape 4: Test</h2>
+            <div class="content-area">
+                <div class="bullet-list">
+                    <ul>
+                        <li><i class="fa-solid fa-bug"></i>On teste s'il contient des problèmes (Bugs).</li>
+                        <li><i class="fa-solid fa-check"></i>Est-ce que tout fonctionne bien ? Les boutons ? Les formulaires ?</li>
+                        <li><i class="fa-solid fa-mobile-screen"></i>Est-ce qu'il s'affiche bien sur un téléphone ? (C'est le <strong>Responsive Design</strong>).</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <div class="slide-container" id="slide14" role="region">
+            <h2 class="slide-title">Étape 5: Publication (Hébergement, Domaine, SSL)</h2>
+            <div class="content-area">
+                <div class="bullet-list">
+                    <ul>
+                        <li><i class="fa-solid fa-cloud-upload"></i><strong>Hosting (Hébergement):</strong> Louer un espace sur un Serveur pour y mettre vos fichiers 24h/24 et 7j/7.</li>
+                        <li><i class="fa-solid fa-globe"></i><strong>Domain Name (Nom de Domaine):</strong> C'est l'adresse facile (par ex : google.com). Il vous redirige vers l'IP du Serveur.</li>
+                        <li><i class="fa-solid fa-lock"></i><strong>Certificat SSL:</strong> Il sécurise la connexion. Il change http:// en https://. Très important pour la confiance et la sécurité.</li>
+                    </ul>
+                </div>
+            </div>
+            
+        </div>
+
+        <div class="slide-container" id="slide15" role="region">
+            <h2 class="slide-title">Les Outils Fondamentaux</h2>
+            <div class="content-area">
+                <div class="tiled-content">
+                    <div class="tile">
+                        <div class="icon"><i class="fa-solid fa-bone"></i></div>
+                        <h3>HTML</h3>
+                        <p>Le Squelette (Structure).</p>
+                    </div>
+                    <div class="tile">
+                        <div class="icon"><i class="fa-solid fa-shirt"></i></div>
+                        <h3>CSS</h3>
+                        <p>Les Vêtements et le Décor (Style).</p>
+                    </div>
+                    <div class="tile">
+                        <div class="icon"><i class="fa-solid fa-brain"></i></div>
+                        <h3>JavaScript</h3>
+                        <p>Le Cerveau et les Muscles (Interaction).</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="slide-container" id="slide16" role="region">
+            <h2 class="slide-title">1. HTML (Le Squelette)</h2>
+            <div class="content-area">
+                <div class="two-column">
+                    <div>
+                        <h3>Qu'est-ce que c'est ?</h3>
+                        <p>C'est le squelette. Il ne contrôle pas les couleurs, seulement la structure. Il dit au navigateur :</p>
+                        <ul>
+                            <li>"Ici, c'est un titre"</li>
+                            <li>"Ici, c'est une image"</li>
+                            <li>"Ici, c'est un bouton"</li>
+                        </ul>
+                    </div>
+                    <div>
+                        <h3>Exemples de "Tags"</h3>
+                        <pre><code>&lt;h1&gt;Grand Titre&lt;/h1&gt;
+&lt;p&gt;Ceci est un paragraphe.&lt;/p&gt;
+&lt;img src="image.jpg"&gt;
+&lt;a href="page2.html"&gt;Lien&lt;/a&gt;
+&lt;div&gt;Boite (Container)&lt;/div&gt;
+&lt;button&gt;Cliquez Ici&lt;/button&gt;</code></pre>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="slide-container" id="slide17" role="region">
+            <h2 class="slide-title">2. CSS (le Décor)</h2>
+            <div class="content-area">
+                <div class="two-column tiled">
+                    <div>
+                        <h3>Qu'est-ce que c'est ?</h3>
+                        <p>C'est <strong>le Style.</strong> Il contrôle les couleurs, la typographie, et l'espacement. Il nous dit :</p>
+                        <ul>
+                            <li>"Mets ce titre en rouge"</li>
+                            <li>"Agrandis un peu ce bouton."</li>
+                        </ul>
+                    </div>
+                    <div>
+                        <h3>Exemple:</h3>
+                        <pre><code>/* Colorer le titre en bleu */
+h1 {
+  color: var(--color-secondary); 
+}
+/* Centrer le texte */
+p {
+  text-align: center;
+}
+/* Styliser le bouton */
+button {
+  background-color: var(--color-primary);
+  color: white;
+  padding: 10px 20px;
+  border: none;
+  border-radius: 5px;
+}</code></pre>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="slide-container" id="slide18" role="region">
+            <h2 class="slide-title">3. JavaScript (Interaction)</h2>
+            <div class="content-area">
+                <div class="two-column tiled">
+                    <div>
+                        <h3>Le Code HTML:</h3>
+                        <pre><code>&lt;h1&gt;Bienvenue !&lt;/h1&gt;
+&lt;p id="myText"&gt;
+  Cliquez le bouton pour changer ce texte.
+&lt;/p&gt;
+&lt;button id="myButton"&gt;Cliquez ici&lt;/button&gt;</code></pre>
+                    </div>
+                    <div>
+                        <h3>Le Code JavaScript:</h3>
+                        <pre><code>// 1. On sélectionne le bouton et le texte
+let btn = document.getElementById('myButton');
+let txt = document.getElementById('myText');
+
+// 2. On écoute l'événement 'click'
+btn.onclick = function() {
+  // 3. On change le texte et la couleur
+  txt.textContent = "Merci ! Vous avez changé le texte.";
+  txt.style.color = "var(--color-primary)";
+}</code></pre>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="slide-container" id="slide19" role="region">
+            <h2 class="slide-title">Outils Professionnels (Frameworks & Outils)</h2>
+            <div class="content-area">
+                <div class="two-column tiled">
+                    <div>
+                        <i class="fa-solid fa-toolbox content-icon"></i>
+                        <h3>Outils Importants</h3>
+                        <ul>
+                            <li><strong>VS Code:</strong> L'Éditeur (là où on écrit le code).</li>
+                            <li><strong>Git & GitHub:</strong> Pour sauvegarder le code et travailler en équipe.</li>
+                            <li><strong>Browser DevTools (F12):</strong> Pour déboguer et voir le code dans le navigateur.</li>
+                        </ul>
+                    </div>
+                    <div>
+                        <i class="fa-solid fa-layer-group content-icon"></i>
+                        <h3>Frameworks</h3>
+                        <p>Ne pas tout construire de zéro. On utilise un "Châssis" (cadriciel) déjà prêt :</p>
+                        <ul>
+                            <li><strong>Frontend:</strong> React, Angular, Vue, Svelte.</li>
+                            <li><strong>Backend:</strong> Express, Django, Laravel.</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="slide-container" id="slide20" role="region">
+            <h2 class="slide-title">Résumé (Ce que nous avons appris)</h2>
+            <div class="content-area">
+                <div class="bullet-list">
+                    <ul>
+                        <li><i class="fa-solid fa-flag-checkered"></i>Le Web Dev a 5 étapes (Planification, Design, Dév, Test, Déploiement).</li>
+                        <li><i class="fa-solid fa-puzzle-piece"></i>La base est : <strong>HTML</strong> (Structure), <strong>CSS</strong> (Style), <strong>JS</strong> (Action).</li>
+                        <li><i class="fa-solid fa-lock"></i>La Sécurité est très importante (SSL).</li>
+                        <li><i class="fa-solid fa-computer"></i>Vous pouvez commencer à apprendre aujourd'hui avec des outils gratuits !</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <div class="slide-container" id="slide21" role="region">
+            <div class="qa-layout">
+                <h2>Merci !</h2>
+                <p style="font-size: clamp(1.5rem, 3vw, 2rem); margin-top: 30px;">Questions?</p>
+            </div>
+        </div>
+    </div>
+
+    <div class="nav-controls">
+        <button class="nav-btn" id="prevBtn" onclick="changeSlide(-1)" aria-label="Diapositive Précédente">
+            <i class="fa-solid fa-chevron-left"></i>
+        </button>
+        <button class="nav-btn" id="nextBtn" onclick="changeSlide(1)" aria-label="Diapositive Suivante">
+            <i class="fa-solid fa-chevron-right"></i>
+        </button>
+    </div>
+
+    <div class="keyboard-hint">
+        Utilisez les touches ← → ou cliquez sur les boutons pour naviguer
+    </div>
+
+    <script>
+        // Initialize presentation
+        let currentSlide = 0;
+        const slides = document.querySelectorAll('.slide-container');
+        const totalSlides = slides.length;
+        const progressBar = document.getElementById('progressBar');
+        const slideCounter = document.getElementById('slideCounter');
+
+        // Create particles
+        function createParticles() {
+            const particlesContainer = document.getElementById('particles');
+            // PERFORMANCE: Reduced particle count
+            for (let i = 0; i < 25; i++) {
+                const particle = document.createElement('div');
+                particle.className = 'particle';
+                particle.style.left = Math.random() * 100 + '%';
+                particle.style.top = Math.random() * 100 + '%';
+                particle.style.animationDelay = Math.random() * 15 + 's';
+                particle.style.animationDuration = (10 + Math.random() * 10) + 's';
+                particlesContainer.appendChild(particle);
+            }
+        }
+
+        // Update slide display
+        function showSlide(n) {
+            // Reset all slides
+            slides.forEach((slide, index) => {
+                slide.classList.remove('active', 'prev');
+                if (index < n) {
+                    slide.classList.add('prev');
+                }
+                if (index !== n) {
+                    slide.removeAttribute('aria-label');
+                }
+            });
+
+            // Show current slide
+            if (slides[n]) {
+                slides[n].classList.add('active');
+
+                // ACCESSIBILITY: Set aria-label from slide title
+                const title = slides[n].querySelector('h1, h2');
+                const label = title ? title.textContent.trim() : `Diapositive ${n + 1}`;
+                slides[n].setAttribute('aria-label', label);
+            }
+
+            // Update progress bar
+            const progress = ((n + 1) / totalSlides) * 100;
+            progressBar.style.width = progress + '%';
+
+            // Update slide counter
+            slideCounter.textContent = `${n + 1} / ${totalSlides}`;
+        }
+
+        // Change slide
+        function changeSlide(direction) {
+            currentSlide += direction;
+
+            if (currentSlide < 0) {
+                currentSlide = 0;
+            } else if (currentSlide >= totalSlides) {
+                currentSlide = totalSlides - 1;
+            }
+
+            showSlide(currentSlide);
+        }
+
+        // Keyboard navigation
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'ArrowRight' || e.key === 'ArrowDown') {
+                e.preventDefault(); // Empêche le défilement de la fenêtre
+                changeSlide(1);
+            } else if (e.key === 'ArrowLeft' || e.key === 'ArrowUp') {
+                e.preventDefault(); // Empêche le défilement de la fenêtre
+                changeSlide(-1);
+            }
+        });
+
+        // Touch swipe support
+        let touchStartX = 0;
+        let touchEndX = 0;
+
+        document.addEventListener('touchstart', (e) => {
+            touchStartX = e.changedTouches[0].screenX;
+        }, { passive: true });
+
+        document.addEventListener('touchend', (e) => {
+            touchEndX = e.changedTouches[0].screenX;
+            handleSwipe();
+        }, { passive: true });
+
+        function handleSwipe() {
+            if (touchEndX < touchStartX - 50) {
+                changeSlide(1);
+            }
+            if (touchEndX > touchStartX + 50) {
+                changeSlide(-1);
+            }
+        }
+
+        // Initialize
+        createParticles();
+        showSlide(0);
+
+        // Re-trigger animations when slide becomes active
+        const observer = new MutationObserver((mutations) => {
+            mutations.forEach((mutation) => {
+                if (mutation.type === 'attributes' && mutation.attributeName === 'class') {
+                    const slide = mutation.target;
+                    if (slide.classList.contains('active')) {
+                        // Re-trigger animations for elements in active slide
+                        const animatedElements = slide.querySelectorAll('.bullet-list li, .tile, .two-column > div');
+                        animatedElements.forEach((el) => {
+                            el.style.animation = 'none'; // Reset animation
+                            void el.offsetWidth; // Force reflow
+                            el.style.animation = ''; // Re-apply animation
+                        });
+                    }
+                }
+            });
+        });
+
+        slides.forEach(slide => {
+            observer.observe(slide, { attributes: true });
+        });
+    </script>
+</body>
+</html>
